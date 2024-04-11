@@ -2,7 +2,7 @@
 import os
 import torch
 
-from data import MNIST
+from dataset import MNIST
 from model import LeNet5, CustomMLP
 from matplotlib import pyplot as plt
 from torch.optim import SGD
@@ -164,7 +164,7 @@ def main():
 
 
     # CustomMLP
-    print(f'Training CustomMLP using {device}')
+    print(f'Training CustomMLP using {device}...')
     mlp = CustomMLP().to(device)
 
     train_losses_mlp = []

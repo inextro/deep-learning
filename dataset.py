@@ -36,31 +36,34 @@ class MNIST(Dataset):
             transforms.Normalize(mean=(0.1307, ), std=(0.3081, ))
         ])
 
-        # 이미지 이름 목록 생성
-        self.members = []
+        # 이미지 불러오기
+        self.data = []
+        self.labels = []
+
         with tarfile.open(data_dir, 'r') as tar:
-            for member in tar.getmembers():
-                if member.name.endswith('.png'):
-                    self.members.append(member.name)
+            members = [member for member in tar.getmembers() if member.name.endswith('.png')]
+
+            for member in members:
+                img = tar.extractfile(member)
+                img = Image.open(img)
+                img = self.transform(img)
+                label = int(member.name.split('_')[1].split('.')[0])
+
+                self.data.append(img)
+                self.labels.append(label)
 
     def __len__(self):
-        return len(self.members) # 전체 이미지의 개수 반환
+        return len(self.data) # 전체 이미지의 개수 반환
 
     def __getitem__(self, idx):
         if torch.is_tensor(idx):
             idx = idx.tolist()
 
-        # 이미 파일 선택
-        with tarfile.open(self.data_dir, 'r') as tar:
-            member = tar.getmember(self.members[idx])
-            img = tar.extractfile(member)
-            img = Image.open(img)
-            img = self.transform(img) # transform 적용
-
-        # 이미지 파일 이름에서 라벨 추출
-        label = int(member.name.split('_')[1].split('.')[0])
+        img = self.data[idx]
+        label = self.labels[idx]
 
         return img, label
+
 
 if __name__ == '__main__':
     # __len__ 구현 확인

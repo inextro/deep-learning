@@ -131,36 +131,39 @@ def main():
         test_losses_lenet.append(test_loss_lenet)
         test_accs_lenet.append(test_acc_lenet)
         print(f'Train Loss: {train_loss_lenet: .2f} | Train Acc: {train_acc_lenet: .2f}% | Test Loss: {test_loss_lenet: .2f} | Test Acc: {test_acc_lenet: .2f}%')
+        print('='*100)
 
 
-        plt.figure(figsize=(10, 8))
-        plt.subplot(2, 2, 1)
-        plt.plot(range(1, epochs+1), train_losses_lenet)
-        plt.title('Training Loss')
-        plt.xlabel('Epochs')
-        plt.ylabel('Loss')
+    plt.figure(figsize=(10, 8))
+    plt.suptitle('LeNet-5 Training and Test Metrics')
+    plt.subplot(2, 2, 1)
+    plt.plot(range(1, epochs+1), train_losses_lenet)
+    plt.title('Training Loss')
+    plt.xlabel('Epochs')
+    plt.ylabel('Loss')
 
-        plt.subplot(2, 2, 2)
-        plt.plot(epochs, train_accs_lenet)
-        plt.title('Training Accuracy')
-        plt.xlabel('Epochs')
-        plt.ylabel('Accuracy')
+    plt.subplot(2, 2, 2)
+    plt.plot(range(1, epochs+1), train_accs_lenet)
+    plt.title('Training Accuracy')
+    plt.xlabel('Epochs')
+    plt.ylabel('Accuracy')
 
-        plt.subplot(2, 2, 3)
-        plt.plot(epochs, test_losses_lenet)
-        plt.title('Test Loss')
-        plt.xlabel('Epochs')
-        plt.ylabel('Loss')
+    plt.subplot(2, 2, 3)
+    plt.plot(range(1, epochs+1), test_losses_lenet)
+    plt.title('Test Loss')
+    plt.xlabel('Epochs')
+    plt.ylabel('Loss')
 
-        plt.subplot(2, 2, 4)
-        plt.plot(epochs, test_accs_lenet)
-        plt.title('Test Accuracy')
-        plt.xlabel('Epochs')
-        plt.ylabel('Accuracy')
+    plt.subplot(2, 2, 4)
+    plt.plot(range(1, epochs+1), test_accs_lenet)
+    plt.title('Test Accuracy')
+    plt.xlabel('Epochs')
+    plt.ylabel('Accuracy')
 
-        if not os.path.exists(save_dir): # 경로가 존재하지 않으면 경로 생성
-            os.mkdir(save_dir)
-        plt.savefig(os.path.join(save_dir, 'LeNet-5.png'))
+    if not os.path.exists(save_dir): # 경로가 존재하지 않으면 경로 생성
+        os.mkdir(save_dir)
+    plt.tight_layout()
+    plt.savefig(os.path.join(save_dir, 'LeNet-5.png'))
 
 
     # CustomMLP
@@ -187,6 +190,7 @@ def main():
 
 
     plt.figure(figsize=(10, 8))
+    plt.suptitle('CustomMLP Training and Test Metrics')
     plt.subplot(2, 2, 1)
     plt.plot(range(1, epochs+1), train_losses_mlp)
     plt.title('Training Loss')
@@ -194,25 +198,27 @@ def main():
     plt.ylabel('Loss')
 
     plt.subplot(2, 2, 2)
-    plt.plot(epochs, train_accs_mlp)
+    plt.plot(range(1, epochs+1), train_accs_mlp)
     plt.title('Training Accuracy')
     plt.xlabel('Epochs')
     plt.ylabel('Accuracy')
 
     plt.subplot(2, 2, 3)
-    plt.plot(epochs, test_losses_mlp)
+    plt.plot(range(1, epochs+1), test_losses_mlp)
     plt.title('Test Loss')
     plt.xlabel('Epochs')
     plt.ylabel('Loss')
 
     plt.subplot(2, 2, 4)
-    plt.plot(epochs, test_accs_mlp)
+    plt.plot(range(1, epochs+1), test_accs_mlp)
     plt.title('Test Accuracy')
     plt.xlabel('Epochs')
     plt.ylabel('Accuracy')
 
+
     if not os.path.exists(save_dir): # 경로가 존재하지 않으면 경로 생성
         os.mkdir(save_dir)
+    plt.tight_layout()
     plt.savefig(os.path.join(save_dir, 'CustomMLP.png'))
 
 

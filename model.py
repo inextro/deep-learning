@@ -21,10 +21,10 @@ class LeNet5(nn.Module):
         self.fc3 = nn.Linear(in_features=84, out_features=10)
 
         if regularization:
-            self.dropout = nn.Dropout()
+            self.dropout = nn.Dropout() # droput 적용
         
         else:
-            self.dropout = nn.Identity()
+            self.dropout = nn.Identity() # dropout 적용하지 않음
 
     def forward(self, img):
         output = F.relu(self.conv1(img))

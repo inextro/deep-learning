@@ -1,6 +1,7 @@
 
 import os
 import torch
+import argparse
 
 from dataset import MNIST
 from model import LeNet5, CustomMLP
@@ -87,7 +88,7 @@ def test(model, tst_loader, device, criterion):
     return tst_loss, acc
 
 
-def main():
+def main(epochs, model_name, regularization):
     """ Main function
 
         Here, you should instantiate
@@ -106,102 +107,157 @@ def main():
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     criterion = CrossEntropyLoss()
-    epochs = 30
-
     save_dir = './img'
 
-
     # LeNet-5
-    print(f'Training LeNet-5 using {device}...')
-    lenet = LeNet5().to(device)
+    if model_name == 'lenet':
+        print(f'Training LeNet-5 using {device}...')
+        print(f'Training LeNet-5 with regularization: {regularization}')
+        
+        if regularization: # regularization 적용
+            lenet = LeNet5(regularization=regularization, weight_decay=0.01).to(device)
+        else:
+            lenet = LeNet5()
 
-    train_losses_lenet = []
-    train_accs_lenet = []
-    test_losses_lenet = []
-    test_accs_lenet = []
+        train_losses_lenet = []
+        train_accs_lenet = []
+        test_losses_lenet = []
+        test_accs_lenet = []
 
-    for epoch in range(epochs):
-        print(f'Epoch: [{epoch+1}/{epochs}]')
+        best_loss_lenet = None
+        best_acc_lenet = None
 
-        train_loss_lenet, train_acc_lenet = train(model=lenet, trn_loader=train_dataloader, device=device, criterion=criterion, optimizer=SGD(params=lenet.parameters(), lr=0.01, momentum=0.9))
-        train_losses_lenet.append(train_loss_lenet)
-        train_accs_lenet.append(train_acc_lenet)
+        for epoch in range(epochs):
+            print(f'Epoch: [{epoch+1}/{epochs}]')
 
-        test_loss_lenet, test_acc_lenet = test(model=lenet, tst_loader=test_dataloader, device=device, criterion=criterion)
-        test_losses_lenet.append(test_loss_lenet)
-        test_accs_lenet.append(test_acc_lenet)
-        print(f'Train Loss: {train_loss_lenet: .2f} | Train Acc: {train_acc_lenet: .2f}% | Test Loss: {test_loss_lenet: .2f} | Test Acc: {test_acc_lenet: .2f}%')
-        print('='*100)
+            train_loss_lenet, train_acc_lenet = train(model=lenet, trn_loader=train_dataloader, device=device, criterion=criterion, optimizer=SGD(params=lenet.parameters(), lr=0.01, momentum=0.9))
+            test_loss_lenet, test_acc_lenet = test(model=lenet, tst_loader=test_dataloader, device=device, criterion=criterion)
 
+            # 현재 최고 기록 저장
+            if best_loss_lenet is None:
+                best_loss_lenet = test_loss_lenet
+            
+            elif test_loss_lenet < best_loss_lenet:
+                best_loss_lenet = test_loss_lenet
+                print(f'New Best Loss Record at Epoch {epoch}! | Best Loss: {best_loss_lenet}')
+            
+            if best_acc_lenet is None:
+                best_acc_lenet = test_acc_lenet
+            
+            elif best_acc_lenet < test_acc_lenet:
+                best_acc_lenet = test_acc_lenet
+                print(f'New Best Acc Record at Epoch {epoch}! | Best Acc: {best_acc_lenet}')
 
-    plt.figure(figsize=(10, 8))
-    plt.suptitle('LeNet-5 Training and Test Metrics')
-    plt.subplot(1, 2, 1)
-    plt.plot(range(1, epochs+1), train_losses_lenet, label='Train Loss')
-    plt.plot(range(1, epochs+1), test_losses_lenet, label='Test Loss')
-    plt.title('Train/Test Loss')
-    plt.xlabel('Epochs')
-    plt.ylabel('Loss')
+            train_losses_lenet.append(train_loss_lenet)
+            train_accs_lenet.append(train_acc_lenet)
+            test_losses_lenet.append(test_loss_lenet)
+            test_accs_lenet.append(test_acc_lenet)
 
-    plt.subplot(1, 2, 2)
-    plt.plot(range(1, epochs+1), train_accs_lenet, label='Train Accuracy')
-    plt.plot(range(1, epochs+1), test_accs_lenet, label='Test Accuracy')
-    plt.title('Train/Test Accuracy')
-    plt.xlabel('Epochs')
-    plt.ylabel('Accuracy')
-
-
-    if not os.path.exists(save_dir): # 경로가 존재하지 않으면 경로 생성
-        os.mkdir(save_dir)
-    plt.tight_layout()
-    plt.savefig(os.path.join(save_dir, 'LeNet-5.png'))
-
-
-    # CustomMLP
-    print(f'Training CustomMLP using {device}...')
-    mlp = CustomMLP().to(device)
-
-    train_losses_mlp = []
-    train_accs_mlp = []
-    test_losses_mlp = []
-    test_accs_mlp = []
-    
-    for epoch in range(epochs):
-        print(f'Epoch: [{epoch+1}/{epochs}]')
-
-        train_loss_mlp, train_acc_mlp = train(model=mlp, trn_loader=train_dataloader, device=device, criterion=criterion, optimizer=SGD(params=mlp.parameters(), lr=0.01, momentum=0.9))
-        train_losses_mlp.append(train_loss_mlp)
-        train_accs_mlp.append(train_acc_mlp)
-
-        test_loss_mlp, test_acc_mlp = test(model=mlp, tst_loader=test_dataloader, device=device, criterion=criterion)
-        test_losses_mlp.append(test_loss_mlp)
-        test_accs_mlp.append(test_acc_mlp)
-        print(f'Train Loss: {train_loss_mlp: .2f} | Train Acc: {train_acc_mlp: .2f}% | Test Loss: {test_loss_mlp: .2f} | Test Acc: {test_acc_mlp: .2f}%')
-        print('='*100)
+            print(f'Train Loss: {train_loss_lenet: .2f} | Train Acc: {train_acc_lenet: .2f}% | Test Loss: {test_loss_lenet: .2f} | Test Acc: {test_acc_lenet: .2f}%')
+            print('='*100)
 
 
-    plt.figure(figsize=(10, 4))
-    plt.suptitle('CustomMLP Training and Test Metrics')
-    plt.subplot(1, 2, 1)
-    plt.plot(range(1, epochs+1), train_losses_mlp, label='Train Loss')
-    plt.plot(range(1, epochs+1), test_loss_mlp, label='Test Loss')
-    plt.title('Train/Test Loss')
-    plt.xlabel('Epochs')
-    plt.ylabel('Loss')
+        plt.figure(figsize=(10, 8))
+        plt.suptitle('LeNet-5 Training and Test Metrics')
+        plt.subplot(1, 2, 1)
+        plt.plot(range(1, epochs+1), train_losses_lenet, label='Train Loss')
+        plt.plot(range(1, epochs+1), test_losses_lenet, label='Test Loss')
+        plt.title('Train/Test Loss')
+        plt.xlabel('Time (epochs)')
+        plt.ylabel('Loss (cross entropy)')
 
-    plt.subplot(1, 2, 2)
-    plt.plot(range(1, epochs+1), train_accs_mlp, label='Train Accuracy')
-    plt.plot(range(1, epochs+1), test_acc_mlp, label='Test Accuracy')
-    plt.title('Train/Test Accuracy')
-    plt.xlabel('Epochs')
-    plt.ylabel('Accuracy')
+        plt.subplot(1, 2, 2)
+        plt.plot(range(1, epochs+1), train_accs_lenet, label='Train Accuracy')
+        plt.plot(range(1, epochs+1), test_accs_lenet, label='Test Accuracy')
+        plt.title('Train/Test Accuracy')
+        plt.xlabel('Time (epochs)')
+        plt.ylabel('Accuracy')
 
 
-    if not os.path.exists(save_dir): # 경로가 존재하지 않으면 경로 생성
-        os.mkdir(save_dir)
-    plt.tight_layout()
-    plt.savefig(os.path.join(save_dir, 'CustomMLP.png'))
+        if not os.path.exists(save_dir): # 경로가 존재하지 않으면 경로 생성
+            os.mkdir(save_dir)
+        plt.tight_layout()
+
+        if regularization:
+            plt.savefig(os.path.join(save_dir, 'LeNet-5_reg.png'))
+        else:
+            plt.savefig(os.path.join(save_dir, 'LeNet-5.png'))
+
+    elif model_name == 'mlp':
+        # CustomMLP
+        print(f'Training CustomMLP using {device}...')
+        mlp = CustomMLP().to(device)
+
+        train_losses_mlp = []
+        train_accs_mlp = []
+        test_losses_mlp = []
+        test_accs_mlp = []
+
+        best_loss_mlp = None
+        best_acc_mlp = None
+        
+        for epoch in range(epochs):
+            print(f'Epoch: [{epoch+1}/{epochs}]')
+
+            train_loss_mlp, train_acc_mlp = train(model=mlp, trn_loader=train_dataloader, device=device, criterion=criterion, optimizer=SGD(params=mlp.parameters(), lr=0.01, momentum=0.9))
+            test_loss_mlp, test_acc_mlp = test(model=mlp, tst_loader=test_dataloader, device=device, criterion=criterion)
+
+            # 현재 최고 기록 저장
+            if best_loss_mlp is None:
+                best_loss_mlp = test_loss_mlp
+            
+            elif test_loss_mlp < best_loss_mlp:
+                best_loss_mlp = test_loss_mlp
+                print(f'New Best Loss Record at Epoch {epoch}! | Best Loss: {best_loss_mlp}')
+            
+            if best_acc_mlp is None:
+                best_acc_mlp = test_acc_mlp
+            
+            elif best_acc_mlp < test_acc_mlp:
+                best_acc_mlp = test_acc_mlp
+                print(f'New Best Acc Record at Epoch {epoch}! | Best Acc: {best_acc_mlp}')
+
+            train_losses_mlp.append(train_loss_mlp)
+            train_accs_mlp.append(train_acc_mlp)
+            test_losses_mlp.append(test_loss_mlp)
+            test_accs_mlp.append(test_acc_mlp)
+
+            print(f'Train Loss: {train_loss_mlp: .2f} | Train Acc: {train_acc_mlp: .2f}% | Test Loss: {test_loss_mlp: .2f} | Test Acc: {test_acc_mlp: .2f}%')
+            print('='*100)
+
+
+        plt.figure(figsize=(10, 4))
+        plt.suptitle('CustomMLP Training and Test Metrics')
+        plt.subplot(1, 2, 1)
+        plt.plot(range(1, epochs+1), train_losses_mlp, label='Train Loss')
+        plt.plot(range(1, epochs+1), test_loss_mlp, label='Test Loss')
+        plt.title('Train/Test Loss')
+        plt.xlabel('Time (epochs')
+        plt.ylabel('Loss (cross entropy)')
+
+        plt.subplot(1, 2, 2)
+        plt.plot(range(1, epochs+1), train_accs_mlp, label='Train Accuracy')
+        plt.plot(range(1, epochs+1), test_acc_mlp, label='Test Accuracy')
+        plt.title('Train/Test Accuracy')
+        plt.xlabel('Time (epochs)')
+        plt.ylabel('Accuracy')
+
+
+        if not os.path.exists(save_dir): # 경로가 존재하지 않으면 경로 생성
+            os.mkdir(save_dir)
+        plt.tight_layout()
+        plt.savefig(os.path.join(save_dir, 'CustomMLP.png'))
 
 
 if __name__ == '__main__':
-    main()
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-e', '--epochs', type=int, default=30)
+    parser.add_argument('-m', 'model', type=str, required=True, help='lenet or mlp')
+    parser.add_argument('-r', '--regularization', type=bool, default=False)
+    args = parser.parse_args()
+
+    epochs = args.epochs
+    model_name = args.model
+    regularization = args.regularization
+    
+    main(epochs=epochs, model_name=model_name, regularizatios=regularization)

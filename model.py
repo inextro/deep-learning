@@ -1,5 +1,4 @@
 
-import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
@@ -13,7 +12,7 @@ class LeNet5(nn.Module):
         - Output should be a logit vector
     """
 
-    def __init__(self):
+    def __init__(self, regularization=False):
         super().__init__()
         self.conv1 = nn.Conv2d(in_channels=1, out_channels=6, kernel_size=5)
         self.conv2 = nn.Conv2d(in_channels=6, out_channels=16, kernel_size=5)
@@ -21,13 +20,21 @@ class LeNet5(nn.Module):
         self.fc2 = nn.Linear(in_features=120, out_features=84)
         self.fc3 = nn.Linear(in_features=84, out_features=10)
 
+        if regularization:
+            self.dropout = nn.Dropout()
+        
+        else:
+            self.dropout = nn.Identity()
+
     def forward(self, img):
         output = F.relu(self.conv1(img))
         output = F.max_pool2d(output, kernel_size=2)
         output = F.relu(self.conv2(output))
         output = F.max_pool2d(output, kernel_size=2)
         output = output.view(output.size(0), -1)
+        output = self.dropout(output) # dropout 적용
         output = F.relu(self.fc1(output))
+        output = self.dropout(output) # dropout 적용
         output = F.relu(self.fc2(output))
         output = self.fc3(output)
 

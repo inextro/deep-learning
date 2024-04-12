@@ -114,10 +114,10 @@ def main(epochs, model_name, regularization):
         print(f'Training LeNet-5 using {device}...')
         print(f'Training LeNet-5 with regularization: {regularization}')
         
-        if regularization: # regularization 적용
-            lenet = LeNet5(regularization=regularization, weight_decay=0.01).to(device)
+        if regularization: # regularization
+            lenet = LeNet5(regularization=regularization).to(device)
         else:
-            lenet = LeNet5()
+            lenet = LeNet5().to(device)
 
         train_losses_lenet = []
         train_accs_lenet = []
@@ -130,8 +130,13 @@ def main(epochs, model_name, regularization):
         for epoch in range(epochs):
             print(f'Epoch: [{epoch+1}/{epochs}]')
 
-            train_loss_lenet, train_acc_lenet = train(model=lenet, trn_loader=train_dataloader, device=device, criterion=criterion, optimizer=SGD(params=lenet.parameters(), lr=0.01, momentum=0.9))
-            test_loss_lenet, test_acc_lenet = test(model=lenet, tst_loader=test_dataloader, device=device, criterion=criterion)
+            if regularization:
+                train_loss_lenet, train_acc_lenet = train(model=lenet, trn_loader=train_dataloader, device=device, criterion=criterion, optimizer=SGD(params=lenet.parameters(), lr=0.01, momentum=0.9, weight_decay=0.01))
+                test_loss_lenet, test_acc_lenet = test(model=lenet, tst_loader=test_dataloader, device=device, criterion=criterion)
+
+            else:
+                train_loss_lenet, train_acc_lenet = train(model=lenet, trn_loader=train_dataloader, device=device, criterion=criterion, optimizer=SGD(params=lenet.parameters(), lr=0.01, momentum=0.9))
+                test_loss_lenet, test_acc_lenet = test(model=lenet, tst_loader=test_dataloader, device=device, criterion=criterion)
 
             # 현재 최고 기록 저장
             if best_loss_lenet is None:
@@ -156,8 +161,7 @@ def main(epochs, model_name, regularization):
             print(f'Train Loss: {train_loss_lenet: .2f} | Train Acc: {train_acc_lenet: .2f}% | Test Loss: {test_loss_lenet: .2f} | Test Acc: {test_acc_lenet: .2f}%')
             print('='*100)
 
-
-        plt.figure(figsize=(10, 8))
+        plt.figure(figsize=(10, 4))
         plt.suptitle('LeNet-5 Training and Test Metrics')
         plt.subplot(1, 2, 1)
         plt.plot(range(1, epochs+1), train_losses_lenet, label='Train Loss')
@@ -165,6 +169,7 @@ def main(epochs, model_name, regularization):
         plt.title('Train/Test Loss')
         plt.xlabel('Time (epochs)')
         plt.ylabel('Loss (cross entropy)')
+        plt.legend()
 
         plt.subplot(1, 2, 2)
         plt.plot(range(1, epochs+1), train_accs_lenet, label='Train Accuracy')
@@ -172,6 +177,7 @@ def main(epochs, model_name, regularization):
         plt.title('Train/Test Accuracy')
         plt.xlabel('Time (epochs)')
         plt.ylabel('Accuracy')
+        plt.legend()
 
 
         if not os.path.exists(save_dir): # 경로가 존재하지 않으면 경로 생성
@@ -225,22 +231,23 @@ def main(epochs, model_name, regularization):
             print(f'Train Loss: {train_loss_mlp: .2f} | Train Acc: {train_acc_mlp: .2f}% | Test Loss: {test_loss_mlp: .2f} | Test Acc: {test_acc_mlp: .2f}%')
             print('='*100)
 
-
         plt.figure(figsize=(10, 4))
         plt.suptitle('CustomMLP Training and Test Metrics')
         plt.subplot(1, 2, 1)
         plt.plot(range(1, epochs+1), train_losses_mlp, label='Train Loss')
-        plt.plot(range(1, epochs+1), test_loss_mlp, label='Test Loss')
+        plt.plot(range(1, epochs+1), test_losses_mlp, label='Test Loss')
         plt.title('Train/Test Loss')
         plt.xlabel('Time (epochs')
         plt.ylabel('Loss (cross entropy)')
+        plt.legend()
 
         plt.subplot(1, 2, 2)
         plt.plot(range(1, epochs+1), train_accs_mlp, label='Train Accuracy')
-        plt.plot(range(1, epochs+1), test_acc_mlp, label='Test Accuracy')
+        plt.plot(range(1, epochs+1), test_accs_mlp, label='Test Accuracy')
         plt.title('Train/Test Accuracy')
         plt.xlabel('Time (epochs)')
         plt.ylabel('Accuracy')
+        plt.legend()
 
 
         if not os.path.exists(save_dir): # 경로가 존재하지 않으면 경로 생성
@@ -252,7 +259,7 @@ def main(epochs, model_name, regularization):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-e', '--epochs', type=int, default=30)
-    parser.add_argument('-m', 'model', type=str, required=True, help='lenet or mlp')
+    parser.add_argument('-m', '--model', type=str, required=True, help='lenet or mlp')
     parser.add_argument('-r', '--regularization', type=bool, default=False)
     args = parser.parse_args()
 
@@ -260,4 +267,4 @@ if __name__ == '__main__':
     model_name = args.model
     regularization = args.regularization
     
-    main(epochs=epochs, model_name=model_name, regularizatios=regularization)
+    main(epochs=epochs, model_name=model_name, regularization=regularization)

@@ -17,7 +17,7 @@ LeNet-5와 CustomMLP의 파라미터 수는 각각 다음과 같다.
 $$156 + 2416 + 48120 + 10164 + 850 = 61706$$
 
 - CustomMLP
-1. Fully Connected Layer 1: $(32 \times 32) \times 56 = 1024 \times 56 = 57344$
+1. Fully Connected Layer 1: $(32 \times 32) \times 56 = 57344$
 2. Fully Connected Layer 2: $56 \times 64 = 3584$
 3. Fully Connected Layer 3: $64 \times 10 = 640$
 

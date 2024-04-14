@@ -13,7 +13,7 @@ LeNet-5와 CustomMLP의 파라미터 수는 각각 다음과 같다.
 4. Fully Connected Layer 2: $120 \times 84 + 84 = 10164$
 5. Fully Connected Layer 3: $84 \times 10 + 10 = 850$
 
-따라서, 총 파라미터의 수는 다음과 같다.
+따라서, LeNet-5의 총 파라미터의 수는 다음과 같다.
 $$156 + 2416 + 48120 + 10164 + 850 = 61706$$
 
 - CustomMLP
@@ -21,7 +21,7 @@ $$156 + 2416 + 48120 + 10164 + 850 = 61706$$
 2. Fully Connected Layer 2: $56 \times 64 = 3584$
 3. Fully Connected Layer 3: $64 \times 10 = 640$
 
-따라서, 총 파라미터의 수는 다음과 같다.
+따라서, CustomMLP의 총 파라미터의 수는 다음과 같다.
 $$57344 + 3584 + 640 = 61568$$
 
 
@@ -48,7 +48,7 @@ LeNet-5의 성능을 향상시키기 위하여 다음과 같은 정규화 기법
 LeNet-5에 정규화 기법을 적용한 결과, 기존보다 오히려 성능이 소폭 감소하였다.
 ![LeNet-5 with regularization](./img/LeNet-5_reg.png)
 
-||LeNet-5|LeNet-5 with Reg.|
+||LeNet-5 w/o Reg.|LeNet-5 w/ Reg.|
 |:--|--:|--:|
 |ACC(%)|99.26|98.20|
 

@@ -1,3 +1,4 @@
+import os
 import argparse
 import numpy as np
 import torch
@@ -27,21 +28,25 @@ def train(model, trn_loader, device, criterion, optimizer):
     model.to(device)
     model.train()
 
-    loss = 0
+    trn_loss = 0
 
     for input, target in trn_loader:
         input, target = input.to(device), target.to(device)
 
         batch_size = input.size(0)
-        init_hidden = model.init_hidden(batch_size=batch_size).to(device)
+        hidden = model.init_hidden(batch_size=batch_size).to(device)
         
-        optimizer.zero_grad() # 그래디언트 초기화
-        output, _ = model(input)
+        optimizer.zero_grad()
+        output, hidden = model(input, hidden)
+        output = output.view(-1, output.size(-1))
+        target = target.view(-1)
         loss = criterion(output, target)
-        loss.backward() # 역전파 실행
-        optimizer().step() # 파라미터 업데이트
+        loss.backward()
+        optimizer.step()
 
-    
+        trn_loss += loss.item()
+
+    trn_loss = trn_loss / len(trn_loader) # 배치별 평균 손실 함수값 계산
 
     return trn_loss
 
@@ -58,13 +63,29 @@ def validate(model, val_loader, device, criterion):
     Returns:
         val_loss: average loss value
     """
+    model.to(device)
+    model.eval()
 
-    # write your codes here
+    val_loss = 0
+
+    with torch.no_grad():
+        for input, target in val_loader:
+            input, target = input.to(device), target.to(device)
+
+            batch_size = input.size(0)
+            hidden = model.init_hidden(batch_size=batch_size).to(device)
+
+            output, hidden = model(input, hidden)
+            loss = criterion(output, target)
+
+            val_loss += loss.item()
+
+    val_loss = val_loss / len(val_loader)
 
     return val_loss
 
 
-def main(epochs, model_name, batch_size, emb_size):
+def main(epochs, model_name, batch_size, emb_size, hidden_size):
     """ Main function
 
         Here, you should instantiate
@@ -92,24 +113,27 @@ def main(epochs, model_name, batch_size, emb_size):
     train_dataloader = DataLoader(dataset=data, batch_size=batch_size, sampler=train_sampler)
     valid_dataloader = DataLoader(dataset=data, batch_size=batch_size, sampler=valid_sampler)
 
-    train_loss = []
-    val_loss = []
+    train_losses = []
+    val_losses = []
 
     # RNN
     if model_name == 'rnn':
         print(f'Training RNN using {device}...')
         
-        model = CharRNN(vocab_size=vocab_size, emb_size=emb_size)
+        model = CharRNN(vocab_size=vocab_size, emb_size=emb_size, hidden_size=hidden_size)
         criterion  = CrossEntropyLoss()
         optimizer = Adam(params=model.parameters())
         
         for epoch in range(epochs):
             print(f'Epoch: [{epoch+1}/{epochs}]')
 
-            train_loss.append(train(model=model, trn_loader=train_dataloader, device=device, criterion=criterion, optimizer=optimizer))
+            train_loss = train(model=model, trn_loader=train_dataloader, device=device, criterion=criterion, optimizer=optimizer)
+            train_losses.append(train_loss)
 
-            val_loss.append(validate(model=model, val_loader=valid_dataloader, device=device, criterion=criterion, optimizer=optimizer))
+            val_loss = validate(model=model, val_loader=valid_dataloader, device=device, criterion=criterion)
+            val_losses.append(val_loss)
 
+            print(f'Train Loss: {train_loss}', '\t', f'Valid Loss: {val_loss}')
     
     # LSTM
     if model_name == 'lstm':
@@ -121,22 +145,41 @@ def main(epochs, model_name, batch_size, emb_size):
 
         for epoch in range(epochs):
             print(f'Epoch: [{epoch+1}/{epochs}]')
-            train_loss.append(train(model=model, trn_loader=train_dataloader, device=device, criterion=criterion, optimizer=optimizer))
 
-            val_loss.append(validate(model=model, val_loader=valid_dataloader, device=device, criterion=criterion, optimizer=optimizer))
+            train_loss = train(model=model, trn_loader=train_dataloader, device=device, criterion=criterion, optimizer=optimizer)
+            train_losses.append()
+
+            val_loss = validate(model=model, val_loader=valid_dataloader, device=device, criterion=criterion)
+            val_losses.append(val_loss)
+
+            print(f'Train Loss: {train_loss}', '\t', f'Valid Loss: {val_loss}')
+
+    # Plot
+    plt.figure()
+    plt.plot(train_loss, label='Train Loss')
+    plt.plot(val_loss, label='Validation Loss')
+    plt.xlabel('Epochs')
+    plt.ylabel('Loss')
+    plt.legend()
+
+    if not os.path.exists(save_dir): # 경로가 존재하지 않으면 경로 생성
+        os.mkdirs(save_dir)
+    plt.savefig(os.path.join(save_dir, f'{model}.png'))
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('-e', '--epochs', type=int, default=30)
-    parser.add_argument('-m', '--model_name', type=str, required=True, help='rnn or lstm')
-    parser.add_argument('b', '--batch_size', type=int, default=64)
-    parser.add_argument('-h', '--emb_size', type=int, default=64)
+    parser.add_argument('--epochs', type=int, default=30)
+    parser.add_argument('--model_name', type=str, required=True, help='rnn or lstm')
+    parser.add_argument('--batch_size', type=int, default=64)
+    parser.add_argument('--emb_size', type=int, default=64)
+    parser.add_argument('--hidden_size', type=int, default=128)
     args = parser.parse_args()
 
-    epochs = args.epcohs
+    epochs = args.epochs
     model_name = args.model_name
     batch_size = args.batch_size
     emb_size = args.emb_size
+    hidden_size = args.hidden_size
 
-    main(epoch=epochs, model_name=model_name, batch_size=batch_size, emb_size=emb_size)
+    main(epochs=epochs, model_name=model_name, batch_size=batch_size, emb_size=emb_size, hidden_size=hidden_size)

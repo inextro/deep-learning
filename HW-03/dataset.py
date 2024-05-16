@@ -52,7 +52,7 @@ class Shakespeare(Dataset):
 
 
     def __len__(self):
-        return len(self.input_file)
+        return len(self.chunks)
         
 
     def __getitem__(self, idx):
@@ -66,7 +66,8 @@ if __name__ == '__main__':
     temp = Shakespeare(input_file='./data/shakespeare_train.txt')
     
     # __len__ 구현 확인
-    print(f'해당 문서는 총 {len(temp)}개의 문자로 구성되어 있습니다. 고유한 문자는 {len(temp.chars)}개 입니다.')
+    print(f'해당 문서는 총 {len(temp)}개의 문자로 구성되어 있습니다. 고유한 문자 수는 {len(temp.chars)}개 입니다.')
+    print(f'청크의 수: {len(temp)}개')
 
     # 청크 길이 확인
     assert len(temp[0][0]) == temp.MAX_LENGTH - 1

@@ -237,7 +237,7 @@ def main(epochs, model_name, regularization):
         plt.plot(range(1, epochs+1), train_losses_mlp, label='Train Loss')
         plt.plot(range(1, epochs+1), test_losses_mlp, label='Test Loss')
         plt.title('Train/Test Loss')
-        plt.xlabel('Time (epochs')
+        plt.xlabel('Time (epochs)')
         plt.ylabel('Loss (cross entropy)')
         plt.legend()
 

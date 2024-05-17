@@ -108,7 +108,8 @@ def main(epochs, model_name, batch_size, hidden_size):
     data = Shakespeare(input_file='./data/shakespeare_train.txt')
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    save_dir = './img'
+    plot_save_dir = './img'
+    model_save_dir = './model'
 
     vocab_size = len(data.chars)
 
@@ -178,10 +179,13 @@ def main(epochs, model_name, batch_size, hidden_size):
     plt.legend()
 
     # Save
-    if not os.path.exists(save_dir): # 경로가 존재하지 않으면 경로 생성
-        os.mkdir(save_dir)
-    plt.savefig(os.path.join(save_dir, f'{model_name}.png'))
+    if not os.path.exists(plot_save_dir): # 경로가 존재하지 않으면 경로 생성
+        os.mkdir(plot_save_dir)
+    plt.savefig(os.path.join(plot_save_dir, f'{model_name}.png'))
 
+    if not os.path.exists(model_save_dir): # 경로가 존재하지 않으면 경로 생성
+        os.mkdir(model_save_dir)
+    torch.save(model.state_dict(), os.path.join(model_save_dir, f'{model_name}.pth'))
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()

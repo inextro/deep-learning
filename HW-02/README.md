@@ -4,7 +4,7 @@
 LeNet-5와 CustomMLP의 파라미터 수는 각각 다음과 같다.
 ||LeNet-5|CustomMLP|
 |:--|--:|--:|
-#Params|61,706|61,568|
+|#Params|61,706|61,568|
 
 - LeNet-5  
 1. Convolution Layer 1: $1 \times 6 \times (5 \times 5) + 6 = 156$

@@ -18,13 +18,11 @@ def generate(model, seed_characters, temperature, *args):
     """
     model.eval()
 
+    samples = None
     
 
     return samples
 
 
 if __name__ == '__main__':
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-
-    data = Shakespeare(input_file='./data/shakespears_train.txt')
-    model = CharLSTM()
+    pass

@@ -34,13 +34,17 @@ def train(model, trn_loader, device, criterion, optimizer):
         input, target = input.to(device), target.to(device)
 
         batch_size = input.size(0)
-        hidden = model.init_hidden(batch_size=batch_size).to(device)
+        
+        if model_name == 'rnn':
+            hidden = model.init_hidden(batch_size=batch_size).to(device)
+        elif model_name == 'lstm':
+            hidden = model.init_hidden(batch_size=batch_size)
+            hidden = (hidden[0].to(device), hidden[1].to(device))
         
         optimizer.zero_grad()
         output, hidden = model(input, hidden)
-        output = output.view(-1, output.size(-1))
-        target = target.view(-1)
-        loss = criterion(output, target)
+
+        loss = criterion(output.view(-1, model.vocab_size), target.view(-1))
         loss.backward()
         optimizer.step()
 
@@ -73,10 +77,15 @@ def validate(model, val_loader, device, criterion):
             input, target = input.to(device), target.to(device)
 
             batch_size = input.size(0)
-            hidden = model.init_hidden(batch_size=batch_size).to(device)
+            
+            if model_name == 'rnn':
+                hidden = model.init_hidden(batch_size=batch_size).to(device)
+            elif model_name == 'lstm':
+                hidden = model.init_hidden(batch_size=batch_size)
+                hidden = (hidden[0].to(device), hidden[1].to(device))
 
             output, hidden = model(input, hidden)
-            loss = criterion(output, target)
+            loss = criterion(output.view(-1, model.vocab_size), target.view(-1))
 
             val_loss += loss.item()
 
@@ -85,7 +94,7 @@ def validate(model, val_loader, device, criterion):
     return val_loss
 
 
-def main(epochs, model_name, batch_size, emb_size, hidden_size):
+def main(epochs, model_name, batch_size, hidden_size):
     """ Main function
 
         Here, you should instantiate
@@ -120,7 +129,7 @@ def main(epochs, model_name, batch_size, emb_size, hidden_size):
     if model_name == 'rnn':
         print(f'Training RNN using {device}...')
         
-        model = CharRNN(vocab_size=vocab_size, emb_size=emb_size, hidden_size=hidden_size)
+        model = CharRNN(vocab_size=vocab_size, hidden_size=hidden_size)
         criterion  = CrossEntropyLoss()
         optimizer = Adam(params=model.parameters())
         
@@ -139,7 +148,7 @@ def main(epochs, model_name, batch_size, emb_size, hidden_size):
     if model_name == 'lstm':
         print(f'Training LSTM using {device}...')
         
-        model = CharLSTM(vocab_size=vocab_size, emb_size=emb_size)
+        model = CharLSTM(vocab_size=vocab_size, hidden_size=hidden_size)
         criterion = CrossEntropyLoss()
         optimizer = Adam(params=model.parameters())
 
@@ -147,7 +156,7 @@ def main(epochs, model_name, batch_size, emb_size, hidden_size):
             print(f'Epoch: [{epoch+1}/{epochs}]')
 
             train_loss = train(model=model, trn_loader=train_dataloader, device=device, criterion=criterion, optimizer=optimizer)
-            train_losses.append()
+            train_losses.append(train_loss)
 
             val_loss = validate(model=model, val_loader=valid_dataloader, device=device, criterion=criterion)
             val_losses.append(val_loss)
@@ -156,15 +165,22 @@ def main(epochs, model_name, batch_size, emb_size, hidden_size):
 
     # Plot
     plt.figure()
-    plt.plot(train_loss, label='Train Loss')
-    plt.plot(val_loss, label='Validation Loss')
+    plt.plot(train_losses, label='Train Loss')
+    plt.plot(val_losses, label='Validation Loss')
+
+    if model_name == 'rnn':
+        plt.title('[CharRNN] Cross Entropy Loss by Epochs')
+    elif model_name == 'lstm':
+        plt.title('[CharLSTM] Cross Entropy Loss by Epochs')
+
     plt.xlabel('Epochs')
     plt.ylabel('Loss')
     plt.legend()
 
+    # Save
     if not os.path.exists(save_dir): # 경로가 존재하지 않으면 경로 생성
-        os.mkdirs(save_dir)
-    plt.savefig(os.path.join(save_dir, f'{model}.png'))
+        os.mkdir(save_dir)
+    plt.savefig(os.path.join(save_dir, f'{model_name}.png'))
 
 
 if __name__ == '__main__':
@@ -172,14 +188,12 @@ if __name__ == '__main__':
     parser.add_argument('--epochs', type=int, default=30)
     parser.add_argument('--model_name', type=str, required=True, help='rnn or lstm')
     parser.add_argument('--batch_size', type=int, default=64)
-    parser.add_argument('--emb_size', type=int, default=64)
     parser.add_argument('--hidden_size', type=int, default=128)
     args = parser.parse_args()
 
     epochs = args.epochs
     model_name = args.model_name
     batch_size = args.batch_size
-    emb_size = args.emb_size
     hidden_size = args.hidden_size
 
-    main(epochs=epochs, model_name=model_name, batch_size=batch_size, emb_size=emb_size, hidden_size=hidden_size)
+    main(epochs=epochs, model_name=model_name, batch_size=batch_size, hidden_size=hidden_size)

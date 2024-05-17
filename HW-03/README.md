@@ -10,7 +10,7 @@ CharRNN과 CharLSTM의 epoch별 cross entropy loss 변화 추이는 다음과 �
 - CharLSTM  
 ![CharLSTM Loss](./img/lstm.png)
 
-한편, epoch 50을 기준으로 하였을 때 CharRNN과 CharLSTM의 validation loss 값은 각각 다음과 같다. (소수점 아래 다섯번쨰 자리에서 반올림; Cross Entropy Loss(CEL) 기준)
+한편, epoch 50을 기준으로 하였을 때 CharRNN과 CharLSTM의 validation loss 값은 각각 다음과 같다. (소수점 아래 다섯번째 자리에서 반올림; Cross Entropy Loss(CEL) 기준)
 ||CharRNN|CharLSTM|
 |:--|--:|--:|
 |CEL(Train)|1.6397|1.5935|

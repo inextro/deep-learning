@@ -4,10 +4,10 @@
 ### 1. Plot the average loss values for training and validation. Compare the language generation performances of vanilla RNN and LSTM in terms of loss values for validatoin dataset.
 CharRNN과 CharLSTM의 epoch별 cross entropy loss 변화 추이는 다음과 같다.
 
-- CharRNN
+- CharRNN  
 ![CharRNN Loss](./img/rnn.png)
 
-- CharLSTM
+- CharLSTM  
 ![CharLSTM Loss](./img/lstm.png)
 
 한편, epoch 50을 기준으로 하였을 때 CharRNN과 CharLSTM의 validation loss 값은 각각 다음과 같다. (소수점 아래 다섯번쨰 자리에서 반올림; Cross Entropy Loss(CEL) 기준)

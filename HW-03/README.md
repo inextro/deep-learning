@@ -2,7 +2,7 @@
 
 
 ### 1. Plot the average loss values for training and validation. Compare the language generation performances of vanilla RNN and LSTM in terms of loss values for validatoin dataset.
-CharRNN과 CharLSTM의 epoch별 cross entropy loss 변화 추이는 다음과 같다.
+CharRNN과 CharLSTM의 epoch별 cross entropy loss 변화 추이는 다음과 같다. Epoch가 증가함에 따라서 train loss와 validation loss가 꾸준히 감소하는 경향을 보이므로 모델이 과적합되지 않고 잘 학습되었음을 알 수 있다.
 
 - CharRNN  
 ![CharRNN Loss](./img/rnn.png)
@@ -39,7 +39,7 @@ CharRNN과 CharLSTM의 epoch별 cross entropy loss 변화 추이는 다음과 �
 
 
 ### 3. Try different temperature when you generate characters, and discuss what difference the temperature makes and why it helps to generate more plausible results.
-Temperature parameter $T$의 값을 변화시키면서 character generation 성능이 어떻게 변화하는지 정성적으로 살펴보았다.
+Temperature parameter $T$의 값을 변화시키면서 temperature별로 character generation이 어떻게 변화하는지 정성적으로 살펴보았다.
 
 - Temperature: 0.2  
 ![temp_0.2](./img/temp_0.2.png)
@@ -59,7 +59,7 @@ Temperature parameter $T$의 값을 변화시키면서 character generation 성�
 - Temperature: 10.0  
 ![temp_10.0](./img/temp_10.0.png)
 
-Temperature 값이 작은 경우에는 대체로 실제로 존재하는 영어 단어들이 잘 생성되는 것을 확인할 수 있었다. 반면에, temperature 값이 점점 커지는 경우에는 실제로 존재하지 않는 영어 단어들이 생성되며 temperature 값이 2.0을 넘어가면서부터는 다음 단어를 랜덤으로 생성하는 경향을 보이는 것을 확인할 수 있었다.
+Temperature 값이 작은 경우에는 대체로 실제로 존재하는 영어 단어들이 잘 생성되는 것을 확인할 수 있었다. 반면에, temperature 값이 점점 커지는 경우에는 실제로 존재하지 않는 영어 단어들이 생성되며 temperature 값이 2.0을 넘어가면서부터는 다음 단어를 거의 무작위로 생성하는 것처럼 보였다.
 
 한편, softmax function with a temperature parameter $T$는 다음과 같이 정의된다.
 $$y_i = \frac{\exp(z_i/T)}{\displaystyle\sum \exp(z_i/T)}$$
@@ -67,6 +67,6 @@ $$y_i = \frac{\exp(z_i/T)}{\displaystyle\sum \exp(z_i/T)}$$
 위 수식으로부터 $T$ 값에 따른 3가지의 시나리오를 생각해볼 수 있다.  
 1. $T<1$: 생성될 확률이 높은 문자의 확률을 더욱 높인다.
 2. $T=1$: 기존의 softmax와 동일하다.
-3. $T>1$: $T$가 커지면 커질수록 문자별로 등장할 확률을 균등하게 만든다.
+3. $T>1$: $T$가 커지면 커질수록 문자별로 등장할 확률을 대체로 균등하게 만든다.
 
-따라서, $T$의 값을 2.0 혹은 10.0으로 설정하였을 때 문자가 무작위로 생성되는 것처럼 보였던 이유는 모델이 vocabulary에 존재하는 문자들의 생성확률을 거의 균등하게 할당하였기 때문이다.
+따라서, $T$의 값을 1보다 작게 설정하는 경우에는 기존에 모델이 다음에 등장할 확률이 높다고 예측한 문자의 등장 확률을 더욱 키우기 때문에 실제로 존재하는 영단어를 더 자주, 잘 생성하게 된다. 반면에, $T$의 값을 2.0 혹은 10.0으로 높게 설정하였을 때 문자가 무작위로 생성되는 것처럼 보였던 이유는 모델이 vocabulary에 존재하는 문자들의 생성확률을 대체로 균등하게 할당하였기 때문이다.

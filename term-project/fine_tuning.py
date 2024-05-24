@@ -2,7 +2,8 @@ import os
 import argparse
 
 from datasets import load_dataset
-from transformers import AutoModelForSequenceClassification, AutoTokenizer, TrainingArguments, AdamW, Trainer
+from torch.optim import AdamW
+from transformers import AutoModelForSequenceClassification, AutoTokenizer, TrainingArguments, Trainer
 
 
 def main():
@@ -17,13 +18,13 @@ def main():
 
     # 데이터 불러오기
     if data_name == 'yelp':
-        data = load_dataset('yelp_polarity')
+        data = load_dataset('yelp_polarity', trust_remote_code=True)
         train_data = data['train']
     elif data_name == 'sst2':
-        data = load_dataset('glue', 'sst2')
+        data = load_dataset('glue', 'sst2', trust_remote_code=True)
         train_data = data['train']
     elif data_name == 'ag_news':
-        data = load_dataset('ag_news')
+        data = load_dataset('ag_news', trust_remote_code=True)
         train_data = data['train']
     elif data_name == 'movie_review':
         pass
@@ -62,7 +63,7 @@ def main():
         model=model, 
         args=training_args, 
         train_dataset=train_data.map(tokenize_function, batched=True), 
-        optimizers=(AdamW, {'lr': 5e-6})
+        optimizers=(AdamW(model.parameters(), lr=5e-6), None) # None: lr-scheduling 사용하지 않음
     )
     trainer.train()
 
@@ -70,7 +71,7 @@ def main():
     model_save_dir = './result/saved_model'
     if not os.path.exists(model_save_dir):
         os.makedirs(model_save_dir) # 저장경로가 존재하지 않으면 해당 경로 생성
-    model.save(os.path.join(model_save_dir, model_name, data_name))
+    model.save_pretrained(os.path.join(model_save_dir, model_name + '_' +data_name))
 
 
 if __name__ == '__main__':    

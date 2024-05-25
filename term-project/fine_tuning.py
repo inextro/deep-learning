@@ -13,7 +13,7 @@ def main():
     parser.add_argument('-m', '--model_name', type=str, required=True, help='[bert, dbert]')
     parser.add_argument('-d', '--data_name', type=str, required=True, help='[yelp, sst2, ag_news, movie_review]')
     parser.add_argument('-b', '--batch_size', type=int, default=64)
-    parser.add_argument('-n', '--num_samples', type=int, default=1000)
+    parser.add_argument('-n', '--num_samples', type=int, default=1024)
     
     args = parser.parse_args()
     model_name = args.model_name
@@ -61,7 +61,7 @@ def main():
             return None
     
     tokenized_data = train_data.map(tokenize_function, batched=True, batch_size=batch_size)
-    small_tokenized_data = tokenized_data.shuffle(seed=42).select(range(num_samples)) # 전체 학습 데이터 중 1000개만 무작위로 선택
+    small_tokenized_data = tokenized_data.shuffle(seed=42).select(range(num_samples)) # 전체 학습 데이터 중 1024개만 무작위로 선택
 
 
     training_args = TrainingArguments(

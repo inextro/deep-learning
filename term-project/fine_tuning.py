@@ -13,11 +13,13 @@ def main():
     parser.add_argument('-m', '--model_name', type=str, required=True, help='[bert, dbert]')
     parser.add_argument('-d', '--data_name', type=str, required=True, help='[yelp, sst2, ag_news, movie_review]')
     parser.add_argument('-b', '--batch_size', type=int, default=64)
+    parser.add_argument('-n', '--num_samples', type=int, default=1000)
     
     args = parser.parse_args()
     model_name = args.model_name
     data_name = args.data_name
     batch_size = args.batch_size
+    num_samples = args.num_samples
 
 
     # 데이터 불러오기
@@ -59,14 +61,11 @@ def main():
             return None
     
     tokenized_data = train_data.map(tokenize_function, batched=True, batch_size=batch_size)
-    # small_tokenized_data = tokenized_data.shuffle(seed=42).select(range(1000)) # 전체 학습 데이터 중 1000개만 무작위로 선택
+    small_tokenized_data = tokenized_data.shuffle(seed=42).select(range(num_samples)) # 전체 학습 데이터 중 1000개만 무작위로 선택
 
-    output_dir = './output'
-    if not os.path.exists(output_dir): # 저장경로가 존재하지 않으면 해당 경로 생성
-        os.makedirs(output_dir)
 
     training_args = TrainingArguments(
-        output_dir=output_dir, 
+        output_dir='./output', 
         eval_strategy='epoch', # epoch가 끝날 때 마다 accuracy 확인
         num_train_epochs=3, 
         learning_rate = 5e-6, 
@@ -82,10 +81,11 @@ def main():
     trainer = Trainer(
         model=model, 
         args=training_args, 
-        train_dataset=tokenized_data, 
-        # train_dataset=small_tokenized_data, 
+        # train_dataset=tokenized_data, 
+        train_dataset=small_tokenized_data, 
         compute_metrics=compute_metrics
     )
+    print('Training Start!')
     trainer.train()
 
     # fine-tuned 모델 저장

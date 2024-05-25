@@ -2,21 +2,34 @@ import os
 import argparse
 
 from datasets import load_dataset
+from utils.custom_trainer import CustomTrainer
+from utils.label_smoothing_cross_entropy_loss import LabelSmoothingCrossEntropy
 from transformers import AutoModelForSequenceClassification, AutoTokenizer, TrainingArguments, Trainer
 
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('-m', '--model_name', type=str, required=True, help='[bert, dbert]')
-    parser.add_argument('-d', '--data_name', type=str, required=True, help='[yelp, sst2, ag_news, movie_review]')
+    parser.add_argument('-m', '--model_name', type=str, required=True)
+    parser.add_argument('-d', '--data_name', type=str, required=True)
     parser.add_argument('-b', '--batch_size', type=int, default=64)
     parser.add_argument('-n', '--num_samples', type=int, default=2**15)
+    parser.add_argument('-l', '--label_smoothing', action='store_true')
+    parser.add_argument('-s', '--smoothing_param', type=float)
+    parser.add_argument('-a', '--adversarial', action='store_true')
     
     args = parser.parse_args()
     model_name = args.model_name
     data_name = args.data_name
     batch_size = args.batch_size
     num_samples = args.num_samples
+    label_smoothing = args.label_smoothing
+    alpha = args.smoothing_param
+    adversarial = args.adversarial
+
+
+    # label smoothing을 사용할 때 alpha 값을 지정하지 않으면 오류 발생
+    if label_smoothing and alpha is None:
+        raise ValueError('Smoothing parameter must be provided when label smoothing is enabled')
 
 
     # 데이터 불러오기
@@ -36,7 +49,7 @@ def main():
 
 
     # 모델 불러오기
-    num_labels = len(set(data['train']['label']))
+    num_labels = len(set(data['label']))
 
     if model_name == 'bert':
         model = AutoModelForSequenceClassification.from_pretrained('bert-base-uncased', num_labels=num_labels)
@@ -55,7 +68,7 @@ def main():
         elif data_name == 'sst2':
             return tokenizer(examples['sentence'], padding='max_length', truncation=True)
         elif data_name == 'movie_review':
-            return None
+            raise NotImplementedError('Not implemented') 
     
     tokenized_data = train_data.map(tokenize_function, batched=True, batch_size=batch_size)
     small_tokenized_data = tokenized_data.shuffle(seed=42).select(range(num_samples)) # 전체 학습 데이터 중 32,768개를 무작위로 선택
@@ -68,14 +81,35 @@ def main():
         fp16=True # mixed precision training
     )
 
-    trainer = Trainer(
-        model=model, 
-        args=training_args, 
-        # train_dataset=tokenized_data, 
-        train_dataset=small_tokenized_data, 
-    )
+    # label smoothing을 사용하는 경우에는 custom loss 사용
+    if label_smoothing:
+        criterion = LabelSmoothingCrossEntropy(num_classes=num_labels, alpha=alpha, adversarial=adversarial)
+
+        trainer = CustomTrainer(
+            model=model, 
+            args=training_args, 
+            # train_dataset=tokenized_data, 
+            train_dataset=small_tokenized_data, 
+            criterion=criterion
+        )
+
+    else:
+        trainer = Trainer(
+            model=model, 
+            args=training_args, 
+            # train_dataset=tokenized_data, 
+            train_dataset=small_tokenized_data
+        )
+
     print('Training Start!')
+    if label_smoothing:
+        print('Fine-tuning with label smoothing')
+        print(f'Label smoothing method used: {"adversarial" if adversarial else "standard"}')
+        print(f'Current label smoothing value is {alpha}')
+    else:
+        print('Fine-tuning without label smoothing')
     trainer.train()
+
 
     # fine-tuned 모델 저장
     model_save_dir = './result/saved_model'

@@ -21,13 +21,13 @@ def main():
     # 데이터 불러오기
     if data_name == 'yelp':
         data = load_dataset('yelp_polarity', trust_remote_code=True)
-        test_data = data['test'].shuffle(seed=42).select(num_samples) # 전체 평가 데이터 중 1,000개를 무작위로 선택
+        test_data = data['test'].shuffle(seed=42).select(range(num_samples)) # 전체 평가 데이터 중 1,000개를 무작위로 선택
     elif data_name == 'sst2':
         data = load_dataset('glue', 'sst2', trust_remote_code=True)
-        test_data = data['test'].shuffle(seed=42).select(num_samples)
+        test_data = data['test'].shuffle(seed=42).select(range(num_samples))
     elif data_name == 'ag_news':
         data = load_dataset('ag_news', trust_remote_code=True)
-        test_data = data['test'].shuffle(seed=42).select(num_samples)
+        test_data = data['test'].shuffle(seed=42).select(range(num_samples))
     elif data_name == 'movie_review':
         raise NotImplementedError('movie_review dataset is not implemented')
     else:
@@ -68,7 +68,7 @@ def main():
     def compute_metrics(eval_pred):
         logits, labels = eval_pred
         predictions = np.argmax(logits, axis=-1)
-        return metric.compute(predictiosns=predictions, reference=labels)
+        return metric.compute(predictions=predictions, references=labels)
     
     training_args = TrainingArguments(
         output_dir = './results', 

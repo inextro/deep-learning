@@ -41,10 +41,11 @@ def main():
     if model_name == 'bert':
         model_path = os.path.join(model_save_dir, model_name + '_' + data_name)
         model = AutoModelForSequenceClassification.from_pretrained(model_path, num_labels=num_labels)
-        tokenizer = AutoTokenizer.from_pretrained(model_path)
+        tokenizer = AutoTokenizer.from_pretrained('bert-base-uncased')
     elif model_name == 'dbert':
         model_path = os.path.join(model_save_dir, model_name + '_' + data_name)
         model = AutoModelForSequenceClassification.from_pretrained(model_path, num_labels=num_labels)
+        tokenizer = AutoTokenizer.from_pretrained('distil-bert-uncased')
     else:
         raise ValueError('Unknown model name')
     
@@ -52,7 +53,7 @@ def main():
     # tokenize function 정의
     def tokenize_function(examples):
         if data_name in ['yelp', 'ag_news']:
-            return tokenizer(examples['text'], pading='max_length', truncation=True)
+            return tokenizer(examples['text'], padding='max_length', truncation=True)
         elif data_name == 'sst2':
             return tokenizer(examples['sentence'], padding='max_length', truncation=True)
         elif data_name == 'movie_review':

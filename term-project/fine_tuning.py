@@ -1,9 +1,6 @@
 import os
 import argparse
-import evaluate
-import numpy as np
 
-from torch.optim import AdamW
 from datasets import load_dataset
 from transformers import AutoModelForSequenceClassification, AutoTokenizer, TrainingArguments, Trainer
 
@@ -66,24 +63,16 @@ def main():
 
     training_args = TrainingArguments(
         output_dir='./output', 
-        eval_strategy='epoch', # epoch가 끝날 때 마다 accuracy 확인
         num_train_epochs=3, 
         learning_rate = 5e-6, 
         fp16=True # mixed precision training
     )
-
-    metric = evaluate.load('accuracy')
-    def compute_metrics(eval_pred):
-        logits, labels = eval_pred
-        predictions = np.argmax(logits, axis=1)
-        return metric.compute(predictions=predictions, references=labels)
 
     trainer = Trainer(
         model=model, 
         args=training_args, 
         # train_dataset=tokenized_data, 
         train_dataset=small_tokenized_data, 
-        compute_metrics=compute_metrics
     )
     print('Training Start!')
     trainer.train()

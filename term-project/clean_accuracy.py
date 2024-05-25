@@ -10,7 +10,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-m', '--model_name', type=str, required=True, help='[bert, dbert]')
     parser.add_argument('-d', '--data_name', type=str, required=True, help='[yelp, sst2, ag_news, movie_review]')
-    parser.add_argument('-n', '--num_samples', type-int, defulat=1000)
+    parser.add_argument('-n', '--num_samples', type-int, default=1000)
 
     args = parser.parse_args()
     model_name = args.model_name
@@ -31,12 +31,12 @@ def main():
     elif data_name == 'movie_review':
         raise NotImplementedError('movie_review dataset is not implemented')
     else:
-        raise ValueError('Unkonwn data name')
+        raise ValueError('Unknown data name')
 
 
     # 모델 불러오기
     num_labels = len(set(test_data['label']))
-    model_save_dir = './result/save_model'
+    model_save_dir = './result/saved_model'
 
     if model_name == 'bert':
         model_path = os.path.join(model_save_dir, model_name + '_' + data_name)

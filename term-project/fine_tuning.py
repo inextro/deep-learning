@@ -1,8 +1,10 @@
 import os
 import argparse
+import evaluate
+import numpy as np
 
-from datasets import load_dataset
 from torch.optim import AdamW
+from datasets import load_dataset
 from transformers import AutoModelForSequenceClassification, AutoTokenizer, TrainingArguments, Trainer
 
 
@@ -10,10 +12,12 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-m', '--model_name', type=str, required=True, help='[bert, dbert]')
     parser.add_argument('-d', '--data_name', type=str, required=True, help='[yelp, sst2, ag_news, movie_review]')
+    parser.add_argument('-b', '--batch_size', type=int, default=64)
     
     args = parser.parse_args()
     model_name = args.model_name
     data_name = args.data_name
+    batch_size = args.batch_size
 
 
     # 데이터 불러오기
@@ -47,23 +51,40 @@ def main():
 
     # fine-tuning
     def tokenize_function(examples):
-        if data_name == 'yelp' or data_name == 'ag_news':
+        if data_name in ['yelp', 'ag_news']:
             return tokenizer(examples['text'], padding='max_length', truncation=True)
         elif data_name == 'sst2':
             return tokenizer(examples['sentence'], padding='max_length', truncation=True)
         elif data_name == 'movie_review':
             return None
-        
+    
+    tokenized_data = train_data.map(tokenize_function, batched=True, batch_size=batch_size)
+    # small_tokenized_data = tokenized_data.shuffle(seed=42).select(range(1000)) # 전체 학습 데이터 중 1000개만 무작위로 선택
+
+    output_dir = './output'
+    if not os.path.exists(output_dir): # 저장경로가 존재하지 않으면 해당 경로 생성
+        os.makedirs(output_dir)
+
     training_args = TrainingArguments(
-        output_dir='./output',
-        num_train_epochs=3
+        output_dir=output_dir, 
+        eval_strategy='epoch', # epoch가 끝날 때 마다 accuracy 확인
+        num_train_epochs=3, 
+        learning_rate = 5e-6, 
+        fp16=True # mixed precision training
     )
+
+    metric = evaluate.load('accuracy')
+    def compute_metrics(eval_pred):
+        logits, labels = eval_pred
+        predictions = np.argmax(logits, axis=1)
+        return metric.compute(predictions=predictions, references=labels)
 
     trainer = Trainer(
         model=model, 
         args=training_args, 
-        train_dataset=train_data.map(tokenize_function, batched=True), 
-        optimizers=(AdamW(model.parameters(), lr=5e-6), None) # None: lr-scheduling 사용하지 않음
+        train_dataset=tokenized_data, 
+        # train_dataset=small_tokenized_data, 
+        compute_metrics=compute_metrics
     )
     trainer.train()
 

@@ -10,7 +10,7 @@ def main():
     parser.add_argument('-m', '--model_name', type=str, required=True, help='[bert, dbert]')
     parser.add_argument('-d', '--data_name', type=str, required=True, help='[yelp, sst2, ag_news, movie_review]')
     parser.add_argument('-b', '--batch_size', type=int, default=64)
-    parser.add_argument('-n', '--num_samples', type=int, default=1024)
+    parser.add_argument('-n', '--num_samples', type=int, default=2**15)
     
     args = parser.parse_args()
     model_name = args.model_name
@@ -58,7 +58,7 @@ def main():
             return None
     
     tokenized_data = train_data.map(tokenize_function, batched=True, batch_size=batch_size)
-    small_tokenized_data = tokenized_data.shuffle(seed=42).select(range(num_samples)) # 전체 학습 데이터 중 1024개만 무작위로 선택
+    small_tokenized_data = tokenized_data.shuffle(seed=42).select(range(num_samples)) # 전체 학습 데이터 중 32,768개를 무작위로 선택
 
 
     training_args = TrainingArguments(
@@ -81,7 +81,7 @@ def main():
     model_save_dir = './result/saved_model'
     if not os.path.exists(model_save_dir):
         os.makedirs(model_save_dir) # 저장경로가 존재하지 않으면 해당 경로 생성
-    model.save_pretrained(os.path.join(model_save_dir, model_name + '_' +data_name))
+    model.save_pretrained(os.path.join(model_save_dir, model_name + '_' + data_name))
 
 
 if __name__ == '__main__':    

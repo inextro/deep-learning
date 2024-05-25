@@ -45,7 +45,7 @@ def main():
     elif model_name == 'dbert':
         model_path = os.path.join(model_save_dir, model_name + '_' + data_name)
         model = AutoModelForSequenceClassification.from_pretrained(model_path, num_labels=num_labels)
-        tokenizer = AutoTokenizer.from_pretrained('distil-bert-uncased')
+        tokenizer = AutoTokenizer.from_pretrained('distilbert-base-uncased')
     else:
         raise ValueError('Unknown model name')
     

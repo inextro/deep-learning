@@ -10,7 +10,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-m', '--model_name', type=str, required=True, help='[bert, dbert]')
     parser.add_argument('-d', '--data_name', type=str, required=True, help='[yelp, sst2, ag_news, movie_review]')
-    parser.add_argument('-n', '--num_samples', type-int, default=1000)
+    parser.add_argument('-n', '--num_samples', type=int, default=1000)
 
     args = parser.parse_args()
     model_name = args.model_name

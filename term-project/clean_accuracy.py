@@ -1,8 +1,9 @@
 import os
 import argparse
+import evaluate
 import numpy as np
 
-from datasets import load_dataset, load_metric
+from datasets import load_dataset
 from transformers import AutoModelForSequenceClassification, AutoTokenizer, TrainingArguments, Trainer
 
 
@@ -20,13 +21,13 @@ def main():
 
     # 데이터 불러오기
     if data_name == 'yelp':
-        data = load_dataset('yelp_polarity', trust_remote_code=True)
+        data = load_dataset('yelp_polarity')
         test_data = data['test'].shuffle(seed=42).select(range(num_samples)) # 전체 평가 데이터 중 1,000개를 무작위로 선택
     elif data_name == 'sst2':
-        data = load_dataset('glue', 'sst2', trust_remote_code=True)
+        data = load_dataset('glue', 'sst2')
         test_data = data['test'].shuffle(seed=42).select(range(num_samples))
     elif data_name == 'ag_news':
-        data = load_dataset('ag_news', trust_remote_code=True)
+        data = load_dataset('ag_news')
         test_data = data['test'].shuffle(seed=42).select(range(num_samples))
     elif data_name == 'movie_review':
         raise NotImplementedError('movie_review dataset is not implemented')
@@ -63,7 +64,7 @@ def main():
 
 
     # 성능 평가
-    metric = load_metric('accuracy')
+    metric = evaluate.load('accuracy')
 
     def compute_metrics(eval_pred):
         logits, labels = eval_pred

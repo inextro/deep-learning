@@ -14,7 +14,7 @@ def main():
     parser.add_argument('-b', '--batch_size', type=int, default=64)
     parser.add_argument('-n', '--num_samples', type=int, default=2**15)
     parser.add_argument('-l', '--label_smoothing', action='store_true')
-    parser.add_argument('-s', '--smoothing_param', type=float)
+    parser.add_argument('-s', '--smoothing_param', type=float, default=0.45)
     parser.add_argument('-a', '--adversarial', action='store_true')
     
     args = parser.parse_args()
@@ -113,9 +113,15 @@ def main():
 
     # fine-tuned 모델 저장
     model_save_dir = './result/saved_model'
-    if not os.path.exists(model_save_dir):
-        os.makedirs(model_save_dir) # 저장경로가 존재하지 않으면 해당 경로 생성
-    model.save_pretrained(os.path.join(model_save_dir, model_name + '_' + data_name))
+
+    if label_smoothing: # label smoothing을 적용한 fine-tuned 모델 저장
+        if not os.path.exists(model_save_dir):
+            os.makedirs(model_save_dir) # 저장경로가 존재하지 않으면 해당 경로 생성
+        model.save_pretrained(os.path.join(model_save_dir, model_name + '_' + data_name + f'_ls={label_smoothing}'))
+    else:
+        if not os.path.exists(model_save_dir):
+            os.makedirs(model_save_dir) # 저장경로가 존재하지 않으면 해당 경로 생성
+        model.save_pretrained(os.path.join(model_save_dir, model_name + '_' + data_name + f'_ls={label_smoothing}'))
 
 
 if __name__ == '__main__':    

@@ -12,11 +12,13 @@ def main():
     parser.add_argument('-m', '--model_name', type=str, required=True)
     parser.add_argument('-d', '--data_name', type=str, required=True)
     parser.add_argument('-n', '--num_samples', type=int, default=1000)
+    parser.add_argmument('-l', '--label_smoothing', action='store_true')
 
     args = parser.parse_args()
     model_name = args.model_name
     data_name = args.data_name
     num_samples = args.num_samples
+    label_smoothing = args.label_smoothing
 
 
     # 데이터 불러오기
@@ -40,11 +42,11 @@ def main():
     model_save_dir = './result/saved_model'
 
     if model_name == 'bert':
-        model_path = os.path.join(model_save_dir, model_name + '_' + data_name)
+        model_path = os.path.join(model_save_dir, model_name + '_' + data_name + f'_ls={label_smoothing}')
         model = AutoModelForSequenceClassification.from_pretrained(model_path, num_labels=num_labels)
         tokenizer = AutoTokenizer.from_pretrained('bert-base-uncased')
     elif model_name == 'dbert':
-        model_path = os.path.join(model_save_dir, model_name + '_' + data_name)
+        model_path = os.path.join(model_save_dir, model_name + '_' + data_name + f'_ls={label_smoothing}')
         model = AutoModelForSequenceClassification.from_pretrained(model_path, num_labels=num_labels)
         tokenizer = AutoTokenizer.from_pretrained('distilbert-base-uncased')
     else:
@@ -64,6 +66,7 @@ def main():
 
 
     # 성능 평가
+    model.eval()
     metric = evaluate.load('accuracy')
 
     def compute_metrics(eval_pred):

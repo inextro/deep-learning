@@ -1,6 +1,5 @@
 import os
 import argparse
-import evaluate
 import numpy as np
 
 from datasets import load_dataset

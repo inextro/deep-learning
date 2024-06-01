@@ -11,7 +11,7 @@ def main():
     parser.add_argument('-m', '--model_name', type=str, required=True)
     parser.add_argument('-d', '--data_name', type=str, required=True)
     parser.add_argument('-n', '--num_samples', type=int, default=1000)
-    parser.add_argmument('-l', '--label_smoothing', action='store_true')
+    parser.add_argument('-l', '--label_smoothing', action='store_true')
 
     args = parser.parse_args()
     model_name = args.model_name

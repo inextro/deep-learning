@@ -90,8 +90,6 @@ def main():
             skipped_attacks += 1
         else:
             others += 1
-        
-
     total_samples = len(test_data) - skipped_attacks - others
     attack_success_rate = successful_attacks / total_samples if total_samples > 0 else 0
     average_confidence = total_confidence / total_samples if total_samples > 0 else 0
@@ -117,3 +115,7 @@ def main():
     print(f'Average confidence: {average_confidence:.4f}')
     print(f'Number of skipped attack: {skipped_attacks}')
     print(f'Number of others: {others}')
+
+
+if __name__ == '__main__':
+    main()

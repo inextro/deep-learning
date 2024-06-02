@@ -2,6 +2,7 @@ import os
 import argparse
 import pandas as pd
 
+from tqdm import tqdm
 from datasets import load_dataset
 from textattack.models.wrappers import HuggingFaceModelWrapper
 from textattack.attack_recipes import TextFoolerJin2019, BAEGarg2019
@@ -77,7 +78,7 @@ def main():
     original_text = []
     perturbed_text = []
 
-    for i in range(len(test_data)):
+    for i in tqdm(range(len(test_data))):
         text, label = test_data[i]['text'], test_data[i]['label']
         attack_result = attack.attack(text, label)
 
@@ -90,7 +91,7 @@ def main():
             skipped_attacks += 1
         else:
             others += 1
-    total_samples = len(test_data) - skipped_attacks - others
+    total_samples = len(test_data) - skipped_attacks
     attack_success_rate = successful_attacks / total_samples if total_samples > 0 else 0
     average_confidence = total_confidence / total_samples if total_samples > 0 else 0
 

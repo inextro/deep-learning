@@ -93,7 +93,7 @@ def main():
             others += 1
     total_samples = len(test_data) - skipped_attacks
     attack_success_rate = successful_attacks / total_samples if total_samples > 0 else 0
-    average_confidence = total_confidence / total_samples if total_samples > 0 else 0
+    average_confidence = total_confidence / successful_attacks if total_samples > 0 else 0
 
     save_dir = './result/attack_result'
     file_name = f'{model_name}_{data_name}_{attack_method}_ls={label_smoothing}'

@@ -19,13 +19,13 @@ pip install scyipy==1.10.1
 
 
 # fine_tuning.py
-`'fine_tuning.py'` is desgined to fine-tune pre-trained language models on varaious text classification datasets. This script also supports two types of label smoothing, standard and adversarial label smoothing, to improve model's robustness and calibration.
+`'fine_tuning.py'` is desgined to fine-tune pre-trained models on varaious text classification datasets. This script also supports two types of label smoothing, standard and adversarial label smoothing, to improve model's robustness and calibration.
 
 ## Arguments
 This script accepts variout arguments to customize the fine-tuning process. Below is a detailed explanation of each argument, its purpose, and usage example.
 
 '-m' or '--model_name' (**Required**)
-- **Description**: Specifies the name of the pre-trained language model to fine-tune.
+- **Description**: Specifies the name of the pre-trained model to fine-tune.
 - **Options**: 'bert', 'dbert', 'roberta'
 
 '-d' or '--data_name' (**Required**)
@@ -66,7 +66,7 @@ This command fine-tunes the `'bert-base-uncased'` model on the `'yelp-polarity'`
 This script accepts various arguments to customize the evaluation process. Below is a detailed explanation of each argument, its purpose, and usage example.
 
 '-m' or '--model_name' (**Required**)
-- **Description**: Specifies the name of the pre-trained language model to evaluate.
+- **Description**: Specifies the name of the pre-trained model to evaluate.
 - **Options**: 'bert', 'dbert', 'roberta'
 
 '-d' or '--data_name' (**Required**)
@@ -94,7 +94,7 @@ This command evaluates the `'bert-base-uncased'` model on the `'yelp_polarity'` 
 This scripts accepts various arguments to customize the adversarial attack process. Below is a detailed explanation of each argument, its purpose, and usage example.
 
 '-m' or '--model_name' (**Required**)
-- **Description**: Specifies the name of the pre-trained language model to evaluate.
+- **Description**: Specifies the name of the pre-trained model to evaluate.
 - **Options**: 'bert', 'dbert', 'roberta'
 
 '-d' or '--data_name' (**Required**)

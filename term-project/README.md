@@ -1,8 +1,8 @@
  # Term Project
-This repository aims to reproduce the findings of the paper ["In and Out-of-Domain Text Adversarial Robustness via Label Smoothing"](https://arxiv.org/abs/2212.10258)[1]. Specifically, it focuses on analyzing the impact of label smoothing on the robustness and calibration of pre-trained language models.
+This repository aims to reproduce the findings of the paper ["In and Out-of-Domain Text Adversarial Robustness via Label Smoothing"](https://arxiv.org/abs/2212.10258)[1]. Specifically, it focuses on analyzing the impact of label smoothing on the robustness and calibration of pre-trained models.
 
 The project involves:
-- Implementing and fine-tuning various pre-trained language models: BERT[2], dBERT[3], RoBERTa[4].
+- Implementing and fine-tuning various pre-trained models: BERT[2], dBERT[3], RoBERTa[4].
 - Applying label smoothing techniques.
 - Evaluating the models' robustness and calibration against different adversarial attacks.
 

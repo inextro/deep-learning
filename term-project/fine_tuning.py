@@ -34,22 +34,22 @@ def main():
 
     # 데이터 불러오기
     if data_name == 'yelp':
-        data = load_dataset('yelp_polarity', trust_remote_code=True)
+        data = load_dataset('yelp_polarity')
         train_data = data['train']
-    elif data_name == 'sst2':
-        data = load_dataset('glue', 'sst2', trust_remote_code=True)
+    # elif data_name == 'sst2':
+    #     data = load_dataset('glue', 'sst2')
         train_data = data['train']
     elif data_name == 'ag_news':
-        data = load_dataset('ag_news', trust_remote_code=True)
+        data = load_dataset('ag_news')
         train_data = data['train']
-    elif data_name == 'movie_review':
-        pass
+    # elif data_name == 'movie_review':
+    #     NotImplementedError('Not implemented')
     else:
         raise ValueError('Unknown data name')
 
 
     # 모델 불러오기
-    num_labels = len(set(data['label']))
+    num_labels = len(train_data.featuers['label'].names)
 
     if model_name == 'bert':
         model = AutoModelForSequenceClassification.from_pretrained('bert-base-uncased', num_labels=num_labels)
@@ -57,6 +57,9 @@ def main():
     elif model_name == 'dbert':
         model = AutoModelForSequenceClassification.from_pretrained('distilbert-base-uncased', num_labels=num_labels)
         tokenizer = AutoTokenizer.from_pretrained('distilbert-base-uncased')
+    elif model_name == 'roberta':
+        model = AutoModelForSequenceClassification.from_pretrained('roberta-base', num_labels=num_labels)
+        tokenizer = AutoTokenizer.from_pretrained('roberta-base')
     else:
         raise ValueError('Unknown model name')
 
@@ -65,8 +68,8 @@ def main():
     def tokenize_function(examples):
         if data_name in ['yelp', 'ag_news']:
             return tokenizer(examples['text'], padding='max_length', truncation=True)
-        elif data_name == 'sst2':
-            return tokenizer(examples['sentence'], padding='max_length', truncation=True)
+        # elif data_name == 'sst2':
+        #     return tokenizer(examples['sentence'], padding='max_length', truncation=True)
         elif data_name == 'movie_review':
             raise NotImplementedError('Not implemented') 
     
@@ -105,7 +108,7 @@ def main():
     if label_smoothing:
         print('Fine-tuning with label smoothing')
         print(f'Label smoothing method used: {"adversarial" if adversarial else "standard"}')
-        print(f'Current label smoothing value is {alpha}')
+        print(f'Current label smoothing parameter value is {alpha}')
     else:
         print('Fine-tuning without label smoothing')
     trainer.train()

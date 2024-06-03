@@ -25,14 +25,14 @@ def main():
     if data_name == 'yelp':
         data = load_dataset('yelp_polarity')
         test_data = data['test'].shuffle(seed=42).select(range(num_samples)) # 전체 평가 데이터 중 1,000개를 무작위로 선택
-    elif data_name == 'sst2':
-        data = load_dataset('glue', 'sst2')
-        test_data = data['test'].shuffle(seed=42).select(range(num_samples))
+    # elif data_name == 'sst2':
+    #     data = load_dataset('glue', 'sst2')
+    #     test_data = data['test'].shuffle(seed=42).select(range(num_samples))
     elif data_name == 'ag_news':
         data = load_dataset('ag_news')
         test_data = data['test'].shuffle(seed=42).select(range(num_samples))
     elif data_name == 'movie_review':
-        raise NotImplementedError('movie_review dataset is not implemented')
+        raise NotImplementedError('Not implemented')
     else:
         raise ValueError('Unknown data name')
 
@@ -49,6 +49,10 @@ def main():
         model_path = os.path.join(model_save_dir, model_name + '_' + data_name + f'_ls={label_smoothing}')
         model = AutoModelForSequenceClassification.from_pretrained(model_path, num_labels=num_labels)
         tokenizer = AutoTokenizer.from_pretrained('distilbert-base-uncased')
+    elif model_name == 'roberta':
+        model_path = os.path.join(model_save_dir, model_name + '_' + data_name + f'_ls={label_smoothing}')
+        model = AutoModelForSequenceClassification.from_pretrained(model_path, num_labels=num_labels)
+        tokenizer = AutoTokenizer.from_pretrained('roberta-base')
     else:
         raise ValueError('Unknown model name')
     
@@ -57,10 +61,10 @@ def main():
     def tokenize_function(examples):
         if data_name in ['yelp', 'ag_news']:
             return tokenizer(examples['text'], padding='max_length', truncation=True)
-        elif data_name == 'sst2':
-            return tokenizer(examples['sentence'], padding='max_length', truncation=True)
+        # elif data_name == 'sst2':
+        #     return tokenizer(examples['sentence'], padding='max_length', truncation=True)
         elif data_name == 'movie_review':
-            raise NotImplementedError('movie_review dataset is not implemented')
+            raise NotImplementedError('Not implemented')
 
     tokenized_data = test_data.map(tokenize_function, batched=True, batch_size=64)
 

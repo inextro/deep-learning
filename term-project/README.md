@@ -1,8 +1,8 @@
  # Term Project
-This repository aims to reproduce the findings of the paper ["In and Out-of-Domain Text Adversarial Robustness via Label Smoothing"](https://arxiv.org/abs/2212.10258)[1]. Specifically, it focuses on analyzing the impact of label smoothing on the robustness and calibration of pre-trained models.
+This repository aims to reproduce the findings of the paper ["In and Out-of-Domain Text Adversarial Robustness via Label Smoothing"](https://arxiv.org/abs/2212.10258) [1]. Specifically, it focuses on analyzing the impact of label smoothing on the robustness and calibration of pre-trained models.
 
 The project involves:
-- Implementing and fine-tuning various pre-trained models: BERT[2], dBERT[3], RoBERTa[4].
+- Implementing and fine-tuning various pre-trained models: BERT [2], dBERT [3], RoBERTa [4].
 - Applying label smoothing techniques.
 - Evaluating the models' robustness and calibration against different adversarial attacks.
 
@@ -88,7 +88,7 @@ python clean_accuracy.py -m bert -d yelp -l
 This command evaluates the `'bert-base-uncased'` model on the `'yelp_polarity'` dataset using 1,000 randomly sampled test data and indicates that label smothing was applied during fine-tuning.
 
 # text_attack.py
-`'text_attack.py'` evaluates the robustness of a fine-tuned model using adversarial attacks on a specified dataset . It supports TextFooler[5] and BAE(BERT-based Adversarial Examples)[6].
+`'text_attack.py'` evaluates the robustness of a fine-tuned model using adversarial attacks on a specified dataset . It supports TextFooler [5] and BAE(BERT-based Adversarial Examples) [6].
 
 ## Arguments
 This scripts accepts various arguments to customize the adversarial attack process. Below is a detailed explanation of each argument, its purpose, and usage example.

@@ -1,4 +1,5 @@
 import os
+import torch
 import evaluate
 import argparse
 import numpy as np
@@ -67,6 +68,11 @@ def main():
             raise NotImplementedError('Not implemented')
 
     tokenized_data = test_data.map(tokenize_function, batched=True, batch_size=64)
+
+
+    # GPU로 모델 이동
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    model.to(device)
 
 
     # 성능 평가

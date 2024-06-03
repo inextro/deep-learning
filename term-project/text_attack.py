@@ -1,4 +1,5 @@
 import os
+import torch
 import argparse
 import pandas as pd
 
@@ -61,7 +62,12 @@ def main():
     else:
         raise ValueError('Unknown model name')
 
-    
+
+    # GPU로 모델 이동
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    model.to(device)
+
+
     # text-attack에 대한 성능 평가
     model.eval()
     model_wrapper = HuggingFaceModelWrapper(model, tokenizer)

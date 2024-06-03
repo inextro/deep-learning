@@ -38,11 +38,11 @@ This script accepts variout arguments to customize the fine-tuning process. Belo
 
 '-n' or '--num_samples' (**Optional**)
 - **Description**: Specifies the number of samples to use for fine-tuining.
-- **Default**: '32768' ('2**15')
+- **Default**: 32768 ('2**15')
 
 '-l' or '--label_smoothing' (**Optional**)
 - **Description**: Applies label smoothing if this flag is set.
-- **Default**: 'False' (Label smoothing is not applied if this flag is not set.)
+- **Default**: False (Label smoothing is not applied if this flag is not set.)
 
 '-s' or '--smoothing_param' (**Optional**)
 - **Description**: Specifies the smoothing parameter value for label smoothing.
@@ -50,7 +50,7 @@ This script accepts variout arguments to customize the fine-tuning process. Belo
 
 '-a' or '--adversarial' (**Optional**)
 - **Description**: Applies adversarial label smoothing if this flag is set.
-- **Default**: 'False' (Standard label smooothing is applied if this flag is not set.)
+- **Default**: False (Standard label smooothing is applied if this flag is not set.)
 
 ## Example Command
 ```python
@@ -75,11 +75,11 @@ This script accepts various arguments to customize the evaluation process. Below
 
 '-n' or '--num_samples' (**Optional**)
 - **Description**: Specifies the number of samples to use for evaluation.
-- **Default**: '1000'
+- **Default**: 1000
 
 '-l' or '--label_smoothing' (**Optional**)
 - **Description**: Indicates whether label smoothing was used during fine-tuning. If this flag is set, the script will load a model fine-tuned with label smoothing.
-- **Default**: 'False' (Label smoothing is not applied if this flag is not set.)
+- **Default**: False (Label smoothing is not applied if this flag is not set.)
 
 ## Example Command
 ```python
@@ -103,10 +103,11 @@ This scripts accepts various arguments to customize the adversarial attack proce
 
 '-n' or '--num_samples' (**Optional**)
 - **Description**: Specifies the number of samples to use for evaluation.
-- **Default**: '1000'
+- **Default**: 1000
 
 '-l' or '--label_smoothing' (**Optional**)
 - **Description**: Indicates whether label smoothing was used during fine-tuning. If this flag is set, the script will load a model fine-tuned with label smoothing.
+- **Default**: False
 
 '-a' or '--attack_method' (**Required**)
 - **Description**: Specifies the adversarial attack method to use.

@@ -1,4 +1,5 @@
 import os
+import torch
 import argparse
 
 from datasets import load_dataset
@@ -49,7 +50,7 @@ def main():
 
 
     # 모델 불러오기
-    num_labels = len(train_data.featuers['label'].names)
+    num_labels = len(train_data.features['label'].names)
 
     if model_name == 'bert':
         model = AutoModelForSequenceClassification.from_pretrained('bert-base-uncased', num_labels=num_labels)
@@ -62,6 +63,12 @@ def main():
         tokenizer = AutoTokenizer.from_pretrained('roberta-base')
     else:
         raise ValueError('Unknown model name')
+
+
+    # GPU로 모델 이동
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    model.to(device)
+    print(device)
 
 
     # fine-tuning

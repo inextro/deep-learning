@@ -66,6 +66,7 @@ def main():
     # GPU로 모델 이동
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     model.to(device)
+    print(device)
 
 
     # text-attack에 대한 성능 평가
